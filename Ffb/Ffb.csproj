@@ -44,31 +44,36 @@
   <ItemGroup>
     <Compile Include="CalculationProvider.cs" />
     <Compile Include="ContainerExtensions.cs" />
-    <Compile Include="FfbController.cs" />
-    <Compile Include="EffectsLogic.cs" />
-    <Compile Include="FfbControllerLogic.cs" />
-    <Compile Include="FfbControllerFactory.cs" />
+    <Compile Include="EffectTypes\CustomEffect.cs" />
+    <Compile Include="FfbEngine.cs" />
+    <Compile Include="EffectsContainer.cs" />
+    <Compile Include="FfbEngineLogic.cs" />
+    <Compile Include="FfbEngineFactory.cs" />
     <Compile Include="ICalculationProvider.cs" />
-    <Compile Include="Effects\DamperEffect.cs" />
-    <Compile Include="Effects\FrictionEffect.cs" />
-    <Compile Include="Effects\InertiaEffect.cs" />
-    <Compile Include="Effects\SawtoothDownEffect.cs" />
-    <Compile Include="Effects\SawtoothUpEffect.cs" />
-    <Compile Include="Effects\SineEffect.cs" />
-    <Compile Include="Effects\SpringEffect.cs" />
-    <Compile Include="Effects\SquareEffect.cs" />
-    <Compile Include="Effects\TriangleEffect.cs" />
+    <Compile Include="EffectTypes\DamperEffect.cs" />
+    <Compile Include="EffectTypes\FrictionEffect.cs" />
+    <Compile Include="EffectTypes\InertiaEffect.cs" />
+    <Compile Include="EffectTypes\SawtoothDownEffect.cs" />
+    <Compile Include="EffectTypes\SawtoothUpEffect.cs" />
+    <Compile Include="EffectTypes\SineEffect.cs" />
+    <Compile Include="EffectTypes\SpringEffect.cs" />
+    <Compile Include="EffectTypes\SquareEffect.cs" />
+    <Compile Include="EffectTypes\TriangleEffect.cs" />
     <Compile Include="FfbStructs.cs" />
-    <Compile Include="IEffect.cs" />
+    <Compile Include="IEffectType.cs" />
     <Compile Include="IFfbMapper.cs" />
     <Compile Include="ILogger.cs" />
     <Compile Include="IReportDescriptorProperties.cs" />
-    <Compile Include="IManageableEffect.cs" />
+    <Compile Include="IEffect.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Effects\ConstantEffect.cs" />
-    <Compile Include="Effects\RampEffect.cs" />
+    <Compile Include="EffectTypes\ConstantEffect.cs" />
+    <Compile Include="EffectTypes\RampEffect.cs" />
     <Compile Include="ReportDescriptorProperties.cs" />
-    <Compile Include="ManageableEffect.cs" />
+    <Compile Include="Effect.cs" />
+    <Compile Include="TinyIoC.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

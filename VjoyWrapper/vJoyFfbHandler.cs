@@ -9,11 +9,13 @@ namespace VjoyWrapper
     internal class vJoyFfbHandler
     {
         private vJoy _joystick;
-        private FfbController _ffbController;
+        private FfbEngine _ffbEngine;
 
         private Dictionary<FFBOP, EFFECT_OPERATION> EffectOperationMapper;
         private Dictionary<FFBEType, EFFECT_TYPE> EffectTypeMapper;
-        private Dictionary<FFBPType, Tuple<string, Func<object, object>>> FfbReportMapper;
+        private Dictionary<string, Func<object, object>> FfbReportMapper;
+        private Dictionary<FFBPType, string> FfbReportTypeMapper;
+
         private Dictionary<FFB_CTRL, PID_CONTROL> PidControlMapper;
         private ILogger _logger;
 
@@ -21,9 +23,9 @@ namespace VjoyWrapper
         {
             _logger = logger;
             _joystick = joystick;
-            FfbControllerFactory factory = new FfbControllerFactory(reportDescriptorProperties);
+            FfbEngineFactory factory = new FfbEngineFactory(reportDescriptorProperties);
 
-            _ffbController = factory.Create();
+            _ffbEngine = factory.Create();
 
             EffectOperationMapper = new Dictionary<FFBOP, EFFECT_OPERATION>() {
               {FFBOP.EFF_START, EFFECT_OPERATION.START},
@@ -46,22 +48,40 @@ namespace VjoyWrapper
                 {FFBEType.ET_CSTM,EFFECT_TYPE.CUSTOM}
                 };
 
-            FfbReportMapper = new Dictionary<FFBPType, Tuple<string, Func<object, object>>>() {
-                {FFBPType.PT_EFFREP,new Tuple<string, Func<object, object>>("SetEffect",SetEffectMapper)},
-                { FFBPType.PT_ENVREP,new Tuple<string, Func<object, object>>("SetEnvelope",EnvelopeMapper)},
-                { FFBPType.PT_CONDREP,new Tuple<string, Func<object, object>>("SetCondition",ConditionMapper)},
-                { FFBPType.PT_PRIDREP,new Tuple<string, Func<object, object>>("SetPeriodic",PeriodMapper)},
-                { FFBPType.PT_CONSTREP,new Tuple<string, Func<object, object>>("SetConstantForce",ConstantMapper)},
-                { FFBPType.PT_RAMPREP,new Tuple<string, Func<object, object>>("SetRampForce",RampMapper)},
-                { FFBPType.PT_EFOPREP,new Tuple<string, Func<object, object>>("EffectOperation",OperationMapper)},
-                { FFBPType.PT_GAINREP,new Tuple<string, Func<object, object>>("DeviceGain",DeviceGainMapper)},
-                { FFBPType.PT_CTRLREP,new Tuple<string, Func<object, object>>("PIDDeviceControl",PidDeviceControlMapper)},
-                { FFBPType.PT_BLKFRREP,new Tuple<string, Func<object, object>>("PIDBlockFree",BlockFreeMapper)},
-                { FFBPType.PT_NEWEFREP,new Tuple<string, Func<object, object>>("CreateNewEffect",CreateNewEffectMapper)},
-                { FFBPType.PT_BLKLDREP,new Tuple<string, Func<object, object>>("BlockLoad",PidBlockLoadMapper)},
-                { FFBPType.PT_POOLREP,new Tuple<string, Func<object, object>>("PIDState",PidStateMapper)}
-                //{ FFBPType.PT_CSTMREP,new Tuple<string, Func<object, object>>("CustomForceData",gggg)},
-                //{ FFBPType.PT_SETCREP,new Tuple<string, Func<object, object>>("SetCustomForce",gggg)}
+            FfbReportMapper = new Dictionary<string, Func<object, object>>() {
+                { "SetEffect", SetEffectMapper },
+                { "SetEnvelope", EnvelopeMapper },
+                { "SetCondition", ConditionMapper},
+                { "SetPeriodic", PeriodMapper},
+                { "SetConstantForce", ConstantMapper },
+                { "SetRampForce", RampMapper },
+                { "EffectOperation", OperationMapper },
+                { "DeviceGain", DeviceGainMapper },
+                { "PIDDeviceControl", PidDeviceControlMapper},
+                { "PIDBlockFree", BlockFreeMapper },
+                { "CreateNewEffect", CreateNewEffectMapper },
+                { "BlockLoad", PidBlockLoadMapper },
+                { "PIDState", PidStateMapper },
+                { "CustomForceData", null},
+                { "SetCustomForce", null}
+            };
+
+            FfbReportTypeMapper = new Dictionary<FFBPType, string>() {
+                { FFBPType.PT_EFFREP, "SetEffect" },
+                { FFBPType.PT_ENVREP, "SetEnvelope" },
+                { FFBPType.PT_CONDREP, "SetCondition" },
+                { FFBPType.PT_PRIDREP, "SetPeriodic" },
+                { FFBPType.PT_CONSTREP, "SetConstantForce" },
+                { FFBPType.PT_RAMPREP, "SetRampForce" },
+                { FFBPType.PT_EFOPREP, "EffectOperation" },
+                { FFBPType.PT_GAINREP, "DeviceGain" },
+                { FFBPType.PT_CTRLREP, "PIDDeviceControl" },
+                { FFBPType.PT_BLKFRREP, "PIDBlockFree" },
+                { FFBPType.PT_NEWEFREP, "CreateNewEffect" },
+                { FFBPType.PT_BLKLDREP, "BlockLoad" },
+                { FFBPType.PT_POOLREP, "PIDState" },
+                { FFBPType.PT_CSTMREP, "CustomForceData" },
+                { FFBPType.PT_SETCREP, "SetCustomForce" }
         };
 
             PidControlMapper = new Dictionary<FFB_CTRL, PID_CONTROL>() {
@@ -76,7 +96,7 @@ namespace VjoyWrapper
 
         public List<double> GetFfbForce(Ffb.JOYSTICK_INPUT joystickInput)
         {
-            return _ffbController.GetForces(joystickInput);
+            return _ffbEngine.GetForces(joystickInput);
         }
 
         public void HandleFfbSetPacket(object packet)
@@ -94,21 +114,21 @@ namespace VjoyWrapper
             byte[] ffbData = new byte[dataSize];
             Array.Copy(data, 0, ffbData, 0, dataSize);
 
-            Tuple<string, Func<object, object>> reportHandler = FfbReportMapper[type];
+            string reportName = FfbReportTypeMapper[type];
 
-            string reportName = reportHandler.Item1;
+            Func<object, object> mapHandler = FfbReportMapper[reportName];
+
 
             Console.WriteLine(reportName);
             Console.WriteLine(string.Join(" ", ffbData.Select(b => b.ToString())));
-
-            Func<object, object> mapHandler = reportHandler.Item2;
 
             if (type > FFBPType.PT_NEWEFREP)
             {
                 try
                 {
-                    object getObject = _ffbController.Get[reportName]();
+                    object getObject = _ffbEngine.Get[reportName]();
                     byte[] packetData = (byte[])mapHandler(getObject);
+                    //TODO: send to the driver...
                 }
                 catch (Exception e)
                 {
@@ -120,7 +140,7 @@ namespace VjoyWrapper
                 try
                 {
                     object mappedReport = mapHandler(packet);
-                    _ffbController.SetReport[reportName](mappedReport);
+                    _ffbEngine.Set[reportName](mappedReport);
                 }
                 catch (Exception e)
                 {
@@ -218,7 +238,7 @@ namespace VjoyWrapper
             o.duration = ffbData.Duration;
             o.gain = ffbData.Gain;
             o.samplePeriod = ffbData.SamplePrd;
-            o.trigerButton = ffbData.TrigerBtn;
+            o.trigerButton = ffbData.TrigerBtn == 0 ? -1: ffbData.TrigerBtn;
             o.trigerRepeat = ffbData.TrigerRpt;
             o.directionX = ffbData.DirX;
             o.directionY = ffbData.DirY;

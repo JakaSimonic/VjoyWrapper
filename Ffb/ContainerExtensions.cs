@@ -4,17 +4,17 @@ namespace Ffb
 {
     internal static class ContainerExtensions
     {
-        public static IManageableEffect GetEffect(this List<IManageableEffect> effectsList, int effectBlockIndex)
+        public static IEffect GetEffect(this List<IEffect> effectsList, int effectBlockIndex)
         {
             return effectsList[effectBlockIndex - 1];
         }
 
-        public static void InsertEffect(this List<IManageableEffect> effectsList, int effectBlockIndex, IManageableEffect effect)
+        public static void InsertEffect(this List<IEffect> effectsList, int effectBlockIndex, IEffect effect)
         {
             effectsList[effectBlockIndex - 1] = effect;
         }
 
-        public static int GetFirstFreeSlot(this List<IManageableEffect> effectsList)
+        public static int GetFirstFreeSlot(this List<IEffect> effectsList)
         {
             int index = effectsList.FindIndex(x => x == null);
             if (index == -1)

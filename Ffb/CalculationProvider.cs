@@ -8,6 +8,9 @@ namespace Ffb
     {
         private IReportDescriptorProperties _reportDescriptorProperties;
 
+        double TO_RAD = (360d / 255d) * (Math.PI / 180d);
+        double HALF_PI = Math.PI / 2;
+
         public CalculationProvider(IReportDescriptorProperties reportDescriptorProperties)
         {
             _reportDescriptorProperties = reportDescriptorProperties;
@@ -51,13 +54,13 @@ namespace Ffb
 
             if (dirParms.polar)
             {
-                angle = polarDirection * _reportDescriptorProperties.TO_RAD;
+                angle = polarDirection * TO_RAD;
             }
             else
             {
                 double x = directionX / _reportDescriptorProperties.DIRECTION_MAX;
                 double y = directionY / _reportDescriptorProperties.DIRECTION_MAX;
-                angle = Math.Atan2(y, x) + _reportDescriptorProperties.HALF_PI;
+                angle = Math.Atan2(y, x) + HALF_PI;
             }
 
             axes.Add(Math.Cos(angle));

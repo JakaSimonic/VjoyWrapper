@@ -16,7 +16,7 @@ namespace VjoyWrapper
         public Type DOWNLOAD_FORCE_SAMPLE_TYPE { get; }
         public int MAX_DEVICE_GAIN { get; }
         public int MAX_RAM_POOL { get; }
-        public double DURATION_INFINITE { get; }
+        public long DURATION_INFINITE { get; }
         public vJoyReportDescriptorProperties()
         {
             TO_RAD = (360d / 255d) * (Math.PI / 180d);

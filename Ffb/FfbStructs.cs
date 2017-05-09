@@ -32,7 +32,7 @@ namespace Ffb
     {
         public int effectBlockIndex;
         public EFFECT_OPERATION effectOp;
-        public double loopCount;
+        public long loopCount;
     }
 
     public struct PERIOD
@@ -54,14 +54,14 @@ namespace Ffb
     public struct SET_EFFECT
     {
         public int effectBlockIndex;
-        public double duration;
+        public long duration;
         public double gain;
-        public double samplePeriod;
-        public double trigerButton;
-        public double trigerRepeat;
-        public double directionX;
-        public double directionY;
-        public double direction;
+        public long samplePeriod;
+        public int trigerButton;
+        public long trigerRepeat;
+        public int directionX;
+        public int directionY;
+        public int direction;
         public bool polar;
         public EFFECT_TYPE effetType;
         public long startDelay;
@@ -99,6 +99,17 @@ namespace Ffb
         public int effectPlayingAndEffectBlockIndex;
     }
 
+    public struct CUSTOM_FORCE_DATA_REPORT
+    {
+        public int effectBlockIndex;
+        public List<int> samples;
+    }
+
+    public struct CUSTOM_FORCE_PARAMETER
+    {
+        public int effectBlockIndex;
+        public double sampleCount;
+    }
     public enum LOAD_STATUS
     {
         SUCCESS = 1,
@@ -142,6 +153,6 @@ namespace Ffb
     public struct JOYSTICK_INPUT
     {
         public List<double> axesPositions;
-        public List<int> triggerButtonOffsets;
+        public List<int> pressedButtonOffsets;
     }
 }
